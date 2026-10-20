@@ -15,20 +15,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
+        body.put("statut", HttpStatus.NOT_FOUND.value());
         body.put("status", HttpStatus.NOT_FOUND.value());
-        body.put("error", "Not Found");
         body.put("message", ex.getMessage());
+        body.put("horodatage", LocalDateTime.now());
+        body.put("timestamp", LocalDateTime.now());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
+        body.put("statut", HttpStatus.BAD_REQUEST.value());
         body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Bad Request");
         body.put("message", ex.getMessage());
+        body.put("horodatage", LocalDateTime.now());
+        body.put("timestamp", LocalDateTime.now());
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }

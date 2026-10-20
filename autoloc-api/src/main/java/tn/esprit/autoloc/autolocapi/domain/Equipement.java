@@ -1,4 +1,5 @@
 package tn.esprit.autoloc.autolocapi.domain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,5 +21,6 @@ public class Equipement {
     private String libelle;
 
     @ManyToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Vehicule> vehicules;
 }

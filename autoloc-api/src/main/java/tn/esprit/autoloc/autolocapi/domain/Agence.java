@@ -1,5 +1,6 @@
 package tn.esprit.autoloc.autolocapi.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -29,8 +30,10 @@ public class Agence {
 
 
     @OneToMany(mappedBy = "agence", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Employe> employes;
 
     @OneToMany(mappedBy = "agence", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Vehicule> vehicules;
 }

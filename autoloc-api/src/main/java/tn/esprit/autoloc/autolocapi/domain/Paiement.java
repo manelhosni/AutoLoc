@@ -1,6 +1,6 @@
 package tn.esprit.autoloc.autolocapi.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,12 +23,10 @@ public class Paiement {
     private BigDecimal montant;
     private LocalDate datePaiement;
 
-
-
     @Enumerated(EnumType.STRING)
     private ModePaiement modePaiement;
 
-    @ManyToOne
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference("contrat-paiements")
     private Contrat contrat;
 }

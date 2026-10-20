@@ -1,44 +1,73 @@
 package tn.esprit.autoloc.autolocapi.web.controller;
 
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.autoloc.autolocapi.domain.Client;
 import tn.esprit.autoloc.autolocapi.service.IClientService;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/clients")
+@RequestMapping("/clients")
 @RequiredArgsConstructor
+@Tag(name = "Clients", description = "Gestion des clients de l'agence")
 public class ClientController {
 
     private final IClientService clientService;
 
-    @PostMapping
-    public ResponseEntity<Client> create(@RequestBody Client client) {
-        Client created = clientService.create(client);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @GetMapping
+    @Operation(summary = "Lister tous les clients", description = "Retourne la liste complète des clients")
+    @ApiResponse(responseCode = "200", description = "Liste des clients récupérée avec succès")
+    public List<Client> findAll() {
+        return clientService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Client> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(clientService.findById(id));
+    @Operation(summary = "Consulter un client", description = "Retourne un client identifié par son ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Client trouvé"),
+            @ApiResponse(responseCode = "404", description = "Client introuvable")
+    })
+    public Client findById(@Parameter(description = "Identifiant du client") @PathVariable Long id) {
+        return clientService.findById(id);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Client>> findAll() {
-        return ResponseEntity.ok(clientService.findAll());
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Créer un client", description = "Enregistre un nouveau client")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Client créé avec succès"),
+            @ApiResponse(responseCode = "400", description = "Données invalides (ex. nom ou email manquant, identifiant présent)")
+    })
+    public Client create(@RequestBody Client client) {
+        return clientService.create(client);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Client> update(@PathVariable Long id, @RequestBody Client client) {
-        return ResponseEntity.ok(clientService.update(id, client));
+    @Operation(summary = "Modifier un client", description = "Met à jour les informations d'un client")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Client modifié avec succès"),
+            @ApiResponse(responseCode = "404", description = "Client introuvable"),
+            @ApiResponse(responseCode = "400", description = "Données invalides pour la modification")
+    })
+    public Client update(@Parameter(description = "Identifiant du client à modifier") @PathVariable Long id, @RequestBody Client client) {
+        return clientService.update(id, client);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Supprimer un client", description = "Supprime un client identifié par son ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Client supprimé avec succès"),
+            @ApiResponse(responseCode = "404", description = "Client introuvable")
+    })
+    public void deleteById(@Parameter(description = "Identifiant du client à supprimer") @PathVariable Long id) {
         clientService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
