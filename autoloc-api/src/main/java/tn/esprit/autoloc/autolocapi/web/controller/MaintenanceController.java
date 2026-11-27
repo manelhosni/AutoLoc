@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.autolocapi.domain.Maintenance;
+import tn.esprit.autoloc.autolocapi.dto.MaintenanceDTO;
+import tn.esprit.autoloc.autolocapi.dto.VehiculeDTO;
 import tn.esprit.autoloc.autolocapi.service.IMaintenanceService;
 
 import java.util.List;
@@ -24,7 +26,7 @@ public class MaintenanceController {
     @GetMapping
     @Operation(summary = "Lister toutes les maintenances", description = "Retourne la liste complète des maintenances")
     @ApiResponse(responseCode = "200", description = "Liste des maintenances récupérée avec succès")
-    public List<Maintenance> findAll() {
+    public List<MaintenanceDTO> findAll() {
         return maintenanceService.findAll();
     }
 
@@ -34,7 +36,7 @@ public class MaintenanceController {
             @ApiResponse(responseCode = "200", description = "Maintenance trouvée"),
             @ApiResponse(responseCode = "404", description = "Maintenance introuvable")
     })
-    public Maintenance findById(@Parameter(description = "Identifiant de la maintenance") @PathVariable Long id) {
+    public MaintenanceDTO findById(@Parameter(description = "Identifiant de la maintenance") @PathVariable Long id) {
         return maintenanceService.findById(id);
     }
 
@@ -45,8 +47,8 @@ public class MaintenanceController {
             @ApiResponse(responseCode = "201", description = "Maintenance créée avec succès"),
             @ApiResponse(responseCode = "400", description = "Données invalides (ex. date de fin antérieure à date de début, identifiant présent)")
     })
-    public Maintenance create(@RequestBody Maintenance maintenance) {
-        return maintenanceService.create(maintenance);
+    public MaintenanceDTO create(@Valid @RequestBody MaintenanceDTO maintenanceDTO) {
+        return maintenanceService.create(maintenanceDTO);
     }
 
     @PutMapping("/{id}")
@@ -56,8 +58,9 @@ public class MaintenanceController {
             @ApiResponse(responseCode = "404", description = "Maintenance introuvable"),
             @ApiResponse(responseCode = "400", description = "Données invalides pour la modification")
     })
-    public Maintenance update(@Parameter(description = "Identifiant de la maintenance à modifier") @PathVariable Long id, @RequestBody Maintenance maintenance) {
-        return maintenanceService.update(id, maintenance);
+    public MaintenanceDTO update(@Parameter(description = "Identifiant de la maintenance à modifier") @PathVariable Long id,
+                                 @Valid @RequestBody MaintenanceDTO maintenanceDTO) {
+        return maintenanceService.update(id, maintenanceDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -69,5 +72,17 @@ public class MaintenanceController {
     })
     public void deleteById(@Parameter(description = "Identifiant de la maintenance à supprimer") @PathVariable Long id) {
         maintenanceService.deleteById(id);
+    }
+
+    @PutMapping(value = {"/affecter-vehicule", "/affecter-a-vehicule"})
+    @Operation(summary = "Affecter une maintenance à un véhicule", description = "Associe une opération de maintenance identifiée par sa description à un véhicule identifié par son immatriculation")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Maintenance affectée au véhicule avec succès"),
+            @ApiResponse(responseCode = "404", description = "Véhicule ou maintenance introuvable")
+    })
+    public VehiculeDTO affecterMaintenanceAvehicule(
+            @Parameter(description = "Description de l'intervention de maintenance") @RequestParam String description,
+            @Parameter(description = "Immatriculation du véhicule") @RequestParam String immatriculation) {
+        return maintenanceService.affecterMaintenanceAvehicule(description, immatriculation);
     }
 }

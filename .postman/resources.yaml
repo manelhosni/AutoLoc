@@ -1,0 +1,11 @@
+# Use this workspace to collaborate
+workspace:
+  id: b4359fcc-a97c-48b1-8e7d-ac3a5bf704aa
+
+localResources:
+  collections:
+    - ../docs/AutoLoc.postman_collection.json
+    - ../autoloc-api/docs/AutoLoc.postman_collection.json
+  environments:
+    - ../docs/local.postman_environment.json
+    - ../autoloc-api/docs/local.postman_environment.json

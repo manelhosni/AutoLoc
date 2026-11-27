@@ -58,4 +58,8 @@ public class Vehicule {
     @JsonIgnore
     private Set<Reservation> reservations;
 
+    @ManyToMany(mappedBy = "vehicules")
+    @JsonIgnore
+    private Set<Equipement> equipements;
+
 }

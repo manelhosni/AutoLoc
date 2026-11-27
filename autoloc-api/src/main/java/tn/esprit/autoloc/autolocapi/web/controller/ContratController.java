@@ -5,12 +5,15 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.autolocapi.domain.Contrat;
+import tn.esprit.autoloc.autolocapi.dto.ContratDTO;
 import tn.esprit.autoloc.autolocapi.service.IContratService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -24,7 +27,7 @@ public class ContratController {
     @GetMapping
     @Operation(summary = "Lister tous les contrats", description = "Retourne la liste complète des contrats de location")
     @ApiResponse(responseCode = "200", description = "Liste des contrats récupérée avec succès")
-    public List<Contrat> findAll() {
+    public List<ContratDTO> findAll() {
         return contratService.findAll();
     }
 
@@ -34,7 +37,7 @@ public class ContratController {
             @ApiResponse(responseCode = "200", description = "Contrat trouvé"),
             @ApiResponse(responseCode = "404", description = "Contrat introuvable")
     })
-    public Contrat findById(@Parameter(description = "Identifiant du contrat") @PathVariable Long id) {
+    public ContratDTO findById(@Parameter(description = "Identifiant du contrat") @PathVariable Long id) {
         return contratService.findById(id);
     }
 
@@ -45,8 +48,8 @@ public class ContratController {
             @ApiResponse(responseCode = "201", description = "Contrat créé avec succès"),
             @ApiResponse(responseCode = "400", description = "Données invalides pour la création du contrat")
     })
-    public Contrat create(@RequestBody Contrat contrat) {
-        return contratService.create(contrat);
+    public ContratDTO create(@Valid @RequestBody ContratDTO contratDTO) {
+        return contratService.create(contratDTO);
     }
 
     @PutMapping("/{id}")
@@ -56,8 +59,9 @@ public class ContratController {
             @ApiResponse(responseCode = "404", description = "Contrat introuvable"),
             @ApiResponse(responseCode = "400", description = "Données invalides pour la modification du contrat")
     })
-    public Contrat update(@Parameter(description = "Identifiant du contrat à modifier") @PathVariable Long id, @RequestBody Contrat contrat) {
-        return contratService.update(id, contrat);
+    public ContratDTO update(@Parameter(description = "Identifiant du contrat à modifier") @PathVariable Long id,
+                             @Valid @RequestBody ContratDTO contratDTO) {
+        return contratService.update(id, contratDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -69,5 +73,18 @@ public class ContratController {
     })
     public void deleteById(@Parameter(description = "Identifiant du contrat à supprimer") @PathVariable Long id) {
         contratService.deleteById(id);
+    }
+
+    @PutMapping(value = {"/affecter-reservation", "/affecter-a-reservation"})
+    @Operation(summary = "Affecter un contrat à une réservation", description = "Associe un contrat repéré par sa date de signature à une réservation repérée par ses dates de début et fin")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Contrat affecté à la réservation avec succès"),
+            @ApiResponse(responseCode = "404", description = "Contrat ou réservation introuvable")
+    })
+    public ContratDTO affecterContratAReservation(
+            @Parameter(description = "Date de signature du contrat") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateSignature,
+            @Parameter(description = "Date de début de réservation") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @Parameter(description = "Date de fin de réservation") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin) {
+        return contratService.affecterContratAReservation(dateSignature, dateDebut, dateFin);
     }
 }

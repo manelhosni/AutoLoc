@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.autoloc.autolocapi.domain.Equipement;
+import tn.esprit.autoloc.autolocapi.dto.EquipementDTO;
+import tn.esprit.autoloc.autolocapi.dto.VehiculeDTO;
 import tn.esprit.autoloc.autolocapi.service.IEquipementService;
 
 import java.util.List;
@@ -24,7 +26,7 @@ public class EquipementController {
     @GetMapping
     @Operation(summary = "Lister tous les équipements", description = "Retourne la liste complète des équipements disponibles")
     @ApiResponse(responseCode = "200", description = "Liste des équipements récupérée avec succès")
-    public List<Equipement> findAll() {
+    public List<EquipementDTO> findAll() {
         return equipementService.findAll();
     }
 
@@ -34,7 +36,7 @@ public class EquipementController {
             @ApiResponse(responseCode = "200", description = "Équipement trouvé"),
             @ApiResponse(responseCode = "404", description = "Équipement introuvable")
     })
-    public Equipement findById(@Parameter(description = "Identifiant de l'équipement") @PathVariable Long id) {
+    public EquipementDTO findById(@Parameter(description = "Identifiant de l'équipement") @PathVariable Long id) {
         return equipementService.findById(id);
     }
 
@@ -45,8 +47,8 @@ public class EquipementController {
             @ApiResponse(responseCode = "201", description = "Équipement créé avec succès"),
             @ApiResponse(responseCode = "400", description = "Données invalides (ex. libellé vide, identifiant présent)")
     })
-    public Equipement create(@RequestBody Equipement equipement) {
-        return equipementService.create(equipement);
+    public EquipementDTO create(@Valid @RequestBody EquipementDTO equipementDTO) {
+        return equipementService.create(equipementDTO);
     }
 
     @PutMapping("/{id}")
@@ -56,8 +58,9 @@ public class EquipementController {
             @ApiResponse(responseCode = "404", description = "Équipement introuvable"),
             @ApiResponse(responseCode = "400", description = "Données invalides pour la modification")
     })
-    public Equipement update(@Parameter(description = "Identifiant de l'équipement à modifier") @PathVariable Long id, @RequestBody Equipement equipement) {
-        return equipementService.update(id, equipement);
+    public EquipementDTO update(@Parameter(description = "Identifiant de l'équipement à modifier") @PathVariable Long id,
+                                @Valid @RequestBody EquipementDTO equipementDTO) {
+        return equipementService.update(id, equipementDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -69,5 +72,17 @@ public class EquipementController {
     })
     public void deleteById(@Parameter(description = "Identifiant de l'équipement à supprimer") @PathVariable Long id) {
         equipementService.deleteById(id);
+    }
+
+    @PutMapping(value = {"/{idEquipement}/vehicules/{idVehicule}", "/affecter-vehicule/{idVehicule}/{idEquipement}"})
+    @Operation(summary = "Affecter un équipement à un véhicule", description = "Associe un équipement à un véhicule")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Équipement affecté au véhicule avec succès"),
+            @ApiResponse(responseCode = "404", description = "Véhicule ou équipement introuvable")
+    })
+    public VehiculeDTO affecterVehiculeAEquipement(
+            @Parameter(description = "Identifiant du véhicule") @PathVariable Long idVehicule,
+            @Parameter(description = "Identifiant de l'équipement") @PathVariable Long idEquipement) {
+        return equipementService.affecterVehiculeAEquipement(idVehicule, idEquipement);
     }
 }
